@@ -8,7 +8,7 @@
     @if (Auth::check())
         <p class="mt-3">You are already registered. <a href="{{ route('user.list') }}">Go to User List</a></p>
     @else
-        <form action="{{ route('register') }}" method="POST" id="registration-form">
+        <form action="#" method="POST" id="registration-form">
             @csrf
             <div class="form-group">
                 <label for="name">Name:</label>
@@ -34,9 +34,6 @@
                 <label for="country_id">Country:</label>
                 <select class="form-control" name="country_id" id="country_id" required>
                     <option value="">Select Country</option>
-                    @foreach ($countries as $country)
-                        <option value="{{ $country->id }}">{{ $country->name }}</option>
-                    @endforeach
                 </select>
             </div>
             <div id="registration-messages" class="mt-3"></div>

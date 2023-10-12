@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Country;
 use Illuminate\Validation\Rule;
+use Laravel\Passport\Token;
 
 class UserController extends Controller {
 
@@ -24,15 +25,12 @@ class UserController extends Controller {
 
         $users = $query->get();
 
-        return view( 'userList', compact( 'users' ) );
+        return response()->json( [ 'users' => $users ] );
     }
 
-    public function showRegistrationForm() {
-        if ( Auth::check() ) {
-            // return redirect()->route( 'user.list' );
-        }
+    public function countryList() {
         $countries = Country::all();
-        return view( 'auth.register', compact( 'countries' ) );
+        return response()->json( [ 'countries' => $countries ] );
     }
 
     public function store( Request $request ) {
@@ -59,8 +57,11 @@ class UserController extends Controller {
                 'country_id' => $request->input( 'country_id' ),
             ] );
 
+            $token = $user->createToken( 'AuthToken' )->accessToken;
+
             Auth::login( $user );
-            return response()->json( [ 'status' => 'success', 'message' => 'Registration successful' ], 200 );
+
+            return response()->json( [ 'status' => 'success', 'message' => 'Registration successful', 'token' => $token ], 200 );
         } catch ( \Exception $e ) {
             if ( strpos( $e->getMessage(), 'Duplicate entry' ) !== false ) {
                 return response()->json( [ 'status' => 'error', 'message' => 'Email address already exists.' ], 422 );
@@ -71,15 +72,17 @@ class UserController extends Controller {
     }
 
     public function userList() {
-        // $users = User::all( [ 'id', 'name', 'email', 'date_of_birth', 'country_id' ] );
-        $users = User::with( 'country' )->get();
-        return view( 'userList', compact( 'users' ) );
+        if ( Auth::check() ) {
+            $users = User::with( 'country' )->get();
+            return response()->json( [ 'users' => $users ] );
+        } else {
+            return response()->json( [ 'error' => 'Unauthorized' ], 401 );
+        }
     }
 
     public function logout() {
-        Auth::logout();
-        return redirect()->route( 'register' );
-        // Redirect to the registration page after logout
+        $accessToken = Auth::user()->token();
+        Token::where( 'id', $accessToken->id )->update( [ 'revoked' => true ] );
+        return response()->json( [ 'message' => 'Logged out successfully' ] );
     }
-
 }

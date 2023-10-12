@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
+use Laravel\Passport\HasApiTokens;
 
 class User extends Model implements Authenticatable
 {
     use HasFactory, AuthenticatableTrait;
+    use HasApiTokens;
 
     protected $fillable = [
         'name',
@@ -19,7 +21,7 @@ class User extends Model implements Authenticatable
         'country_id',
     ];
 
-    protected $protected = [
+    protected $hidden = [
         'password',
     ];
 

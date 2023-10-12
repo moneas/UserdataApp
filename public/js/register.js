@@ -1,4 +1,18 @@
 $(document).ready(function () {
+    $.get('/api/countries', function(data) {
+        var countrySelect = $('#country_id');
+        countrySelect.empty();
+        countrySelect.append($('<option>', {
+            value: '',
+            text: 'Select Country'
+        }));
+        $.each(data.countries, function(key, value) {
+            countrySelect.append($('<option>', {
+                value: value.id,
+                text: value.name
+            }));
+        });
+    });
     $('#registration-form').submit(function (e) {
         e.preventDefault();
 
@@ -13,13 +27,15 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: '/register', 
+            url: '/api/register', // Change the URL to /api/register
             type: 'POST',
             data: formData,
             dataType: 'json',
-            success: function (response) {
+            success: function(response) {
                 if (response.status === 'success') {
-                    window.location.href = '/user-list'; 
+                    // Save the token to localStorage
+                    localStorage.setItem('token', response.token);
+                    window.location.href = '/user-list';
                 } else {
                     var messages = '';
                     if (response.errors) {
@@ -30,9 +46,9 @@ $(document).ready(function () {
                     $('#registration-messages').html('<div class="alert alert-danger">' + response.message + '</div>');
                 }
             },
-            error: function (data) {
-                $('#registration-messages').html('<div class="alert alert-danger">'+data.responseJSON.message+'</div>');
+            error: function(data) {
+                $('#registration-messages').html('<div class="alert alert-danger">' + data.responseJSON.message + '</div>');
             }
-        });        
+        });      
     });
 });
