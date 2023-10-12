@@ -9,6 +9,7 @@ Route::post('/register', [UserController::class, 'store'])->name('register');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/user-list', [UserController::class, 'userList'])->name('user.list');
+    Route::get('/user-search', [UserController::class, 'userSearch'])->name('user.search');
     Route::get('/logout', [UserController::class, 'logout'])->name('logout');
 
 });
