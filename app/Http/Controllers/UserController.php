@@ -10,6 +10,23 @@ use App\Models\Country;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller {
+
+    public function index( Request $request ) {
+        $query = User::with( 'country' );
+
+        if ( $request->has( 'name' ) ) {
+            $query->where( 'name', 'like', '%' . $request->input( 'name' ) . '%' );
+        }
+
+        if ( $request->has( 'country_id' ) ) {
+            $query->where( 'country_id', $request->input( 'country_id' ) );
+        }
+
+        $users = $query->get();
+
+        return view( 'userList', compact( 'users' ) );
+    }
+
     public function showRegistrationForm() {
         if ( Auth::check() ) {
             // return redirect()->route( 'user.list' );
@@ -54,8 +71,8 @@ class UserController extends Controller {
     }
 
     public function userList() {
-       // $users = User::all( [ 'id', 'name', 'email', 'date_of_birth', 'country_id' ] );
-        $users = User::with('country')->get();
+        // $users = User::all( [ 'id', 'name', 'email', 'date_of_birth', 'country_id' ] );
+        $users = User::with( 'country' )->get();
         return view( 'userList', compact( 'users' ) );
     }
 
